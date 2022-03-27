@@ -1,4 +1,4 @@
-name: "KKP delivery pipeline with GitOps"
+name: "KKP delivery pipeline with GitOps - singlepaneofglass-k8s-poc"
 
 on:
   push:
