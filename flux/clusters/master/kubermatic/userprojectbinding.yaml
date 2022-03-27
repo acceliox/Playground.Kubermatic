@@ -1,0 +1,8 @@
+apiVersion: kubermatic.k8s.io/v1
+kind: UserProjectBinding
+metadata:
+  name: faxu8zm3cz
+spec:
+  group: owners-fbdefwhekt
+  projectId: fbdefwhekt
+  userEmail: spog-adm

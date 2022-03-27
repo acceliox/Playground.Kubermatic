@@ -1,0 +1,9 @@
+apiVersion: kubermatic.k8s.io/v1
+kind: User
+metadata:
+  name: tdwopoiclalbcnu5bzrjykn8ehqb4zwe
+spec:
+  admin: true
+  email: spog-adm
+  id: adXAxZ8VrzMhL6yDNKKk9wc5La3AwLOg
+  name: spog-adm

@@ -1,0 +1,160 @@
+kubermaticOperator:
+    image:
+        tag: v2.19.2
+dex:
+    ingress:
+        host: singlepaneofglass-k8s-poc.acceliox.io
+    certIssuer:
+        name: letsencrypt-prod
+        kind: ClusterIssuer
+    env:
+        - name: KUBERNETES_POD_NAMESPACE
+          value: oauth
+    staticPasswords:
+        - email: spog-adm
+          hash: ENC[AES256_GCM,data:Hd2b4kBI0kdGudFQ3gxu8/MHIZ9OFQoo98C0MrrQ35ULY2CFcx2TIcnaeosinklfCabKIJVkFFeqTvcP,iv:nZ3+rbcPLzhNGIfliyY0SCrguO3cy10dBZSzDFAZHZU=,tag:25UMXlOf1uT6cbjL8a786Q==,type:str]
+          username: spog-adm
+          userID: 1d6cfe50-5082-48b5-8709-5305dbef66e7
+    clients:
+        - id: kubermatic
+          name: Kubermatic
+          secret: ENC[AES256_GCM,data:TgFd8sKBYoYnGHkBATTvWJLikF+F27ZiRcL+Dl6fU10=,iv:cCDtUaiqmEbpJhVYbzVTJRE58xq67LqIj9gq4bForvU=,tag:8GNs4gSvdww1H9nnjHlFKQ==,type:str]
+          RedirectURIs:
+            - https://singlepaneofglass-k8s-poc.acceliox.io
+            - https://singlepaneofglass-k8s-poc.acceliox.io/projects
+        - id: kubermaticIssuer
+          name: Kubermatic OIDC Issuer
+          secret: ENC[AES256_GCM,data:tgeEXdP4ylM3JF6xzXPz2A==,iv:KObaFBpvykYox83lb5d7tIMYRn1ZJZRoWhHZ7AD5KLQ=,tag:othtw0GuKNF7Mjnq8Bl5Vw==,type:str]
+          RedirectURIs:
+            - https://singlepaneofglass-k8s-poc.acceliox.io/api/v1/kubeconfig
+        - id: prometheus
+          name: Prometheus
+          secret: ENC[AES256_GCM,data:L9qHVhDpdzFXQd/kQXKnoA==,iv:nHfe/JrOdiRcdPvU08EDYCk2YIbNufZcP6SnbxXZt+U=,tag:2KWEomM7KtblVH0wI2mYyw==,type:str]
+          RedirectURIs:
+            - https://prometheus.singlepaneofglass-k8s-poc.acceliox.io/oauth/callback
+        - id: alertmanager
+          name: Alertmanager
+          secret: ENC[AES256_GCM,data:WghKkj65CgiVtJ16QVh67w==,iv:EbsJeIv/sof4U0QjFb3vYKU8352Ghcimvg4Jh+mIOZs=,tag:Q/Bzim1zNCCLDWU4KiRC5w==,type:str]
+          RedirectURIs:
+            - https://alertmanager.singlepaneofglass-k8s-poc.acceliox.io/oauth/callback
+        - id: grafana
+          name: Grafana
+          secret: ENC[AES256_GCM,data:6GObkruXc3iKVz6iTQ2Log==,iv:cLDrWw50As7nunmC03/IocMxn75LgOkhMdaLLTa5s44=,tag:Quz4VOXoCrk1au0tUl5tdA==,type:str]
+          RedirectURIs:
+            - https://grafana.singlepaneofglass-k8s-poc.acceliox.io/oauth/callback
+        - id: karma
+          name: Karma
+          secret: ENC[AES256_GCM,data:q/dllBbbgDAfpy4haOzy1g==,iv:4/0rBVZVMTfFjH5iTGuR/8DAI8K7OvV0GH3/+UwhfvE=,tag:dBZEH5Xd5h7FkSlQuLZp3A==,type:str]
+          RedirectURIs:
+            - https://karma.singlepaneofglass-k8s-poc.acceliox.io/oauth/callback
+alertmanager:
+    host: alertmanager.singlepaneofglass-k8s-poc.acceliox.io
+grafana:
+    user: admin
+    password: ENC[AES256_GCM,data:OFy+0Lqo15EVgz/1gwLz7Q==,iv:WVGCSDJRmyZUOFrDpz7zxBdk2jaZK8uUsJdANiprrG8=,tag:oJlE6q6i33NMSFqOzlHGsQ==,type:str]
+    provisioning:
+        configuration:
+            auto_assign_org_role: Editor
+            disable_login_form: false
+            root_url: https://grafana.singlepaneofglass-k8s-poc.acceliox.io
+        datasources:
+            lokiServices:
+                - loki
+prometheus:
+    host: prometheus.singlepaneofglass-k8s-poc.acceliox.io
+    storageSize: 125Gi
+    tsdb:
+        retentionTime: 7d
+    ruleFiles:
+        - /etc/prometheus/rules/general-*.yaml
+        - /etc/prometheus/rules/kubermatic-*.yaml
+        - /etc/prometheus/rules/managed-*.yaml
+iap:
+    oidc_issuer_url: https://singlepaneofglass-k8s-poc.acceliox.io/dex
+    deployments:
+        prometheus:
+            name: prometheus
+            ingress:
+                host: prometheus.singlepaneofglass-k8s-poc.acceliox.io
+            upstream_service: prometheus.monitoring.svc.cluster.local
+            upstream_port: 9090
+            client_id: prometheus
+            client_secret: ENC[AES256_GCM,data:pTB0/CS03AgSlUBRJtdONg==,iv:MLunwe/mYJRJiDd8nHHtTPI2WRdX9djvTltNDT7kD60=,tag:bkeiOCIRQCDE9AfuyO/Xng==,type:str]
+            encryption_key: ENC[AES256_GCM,data:FkPT35kol5t5H3mCSDFMRnGxx/48S8fL79g2J4Vz/g8=,iv:DtcKV/xhSJH/8378snljwszMZho4DdusIoiJHhXfKDA=,tag:rYoVF81HzLMvoCsm2znA/Q==,type:str]
+            config:
+                scope: groups openid email
+                email_domains:
+                    - acceliox.ch
+                pass_user_headers: true
+                skip_auth_regex:
+                    - /-/health
+        alertmanager:
+            name: alertmanager
+            ingress:
+                host: alertmanager.singlepaneofglass-k8s-poc.acceliox.io
+            upstream_service: alertmanager.monitoring.svc.cluster.local
+            upstream_port: 9093
+            client_id: alertmanager
+            client_secret: ENC[AES256_GCM,data:VGRBgUuldYKVZMwJku8Gsg==,iv:KmKVsmJC0LnrQ0my1SK3B15oM+4tzTzqQoUrHbPGf5I=,tag:WN7ZoEYWH1OVQIvfVIqFAg==,type:str]
+            encryption_key: ENC[AES256_GCM,data:BdfNgMZPopihxjvS+xR1wZV4n2pHXzCI7VoidPDnVMY=,iv:VuT1eOL12Shsa9VKHH4JZ67LM2a5y7PVSqyCgQA08bY=,tag:WmGez/TX7OFFmKrlUbakDA==,type:str]
+            config:
+                scope: groups openid email
+                email_domains:
+                    - acceliox.ch
+                pass_user_headers: true
+                skip_auth_regex:
+                    - /-/health
+        grafana:
+            name: grafana
+            ingress:
+                host: grafana.singlepaneofglass-k8s-poc.acceliox.io
+            upstream_service: grafana.monitoring.svc.cluster.local
+            upstream_port: 3000
+            client_id: grafana
+            client_secret: ENC[AES256_GCM,data:Wd16vbB2qFoMA0ieDOBSAA==,iv:93p4qUNjOh+YiWNgwss45xeQxqlDN/615/flyswyn4o=,tag:kvRIoVTWkoifKn7FiLucAg==,type:str]
+            encryption_key: ENC[AES256_GCM,data:83WMwjWGH5MDC99LlAzsQ5aIUZ59r7nwNcvm9ECiRU4=,iv:Jn6eCYqg95UNudPrRmrWE77Wjom1byi6gYZVEqQ0BgI=,tag:dtEjqugvLt5TnonU8MlGDg==,type:str]
+            config:
+                scope: groups openid email
+                email_domains:
+                    - acceliox.ch
+                pass_user_headers: true
+                skip_auth_regex:
+                    - /api/health
+        karma:
+            name: karma
+            ingress:
+                host: karma.singlepaneofglass-k8s-poc.acceliox.io
+            upstream_service: karma.monitoring.svc.cluster.local
+            upstream_port: 8080
+            client_id: karma
+            client_secret: ENC[AES256_GCM,data:5HZ4pEAQ2wkeU6UswGKYXQ==,iv:fx0Y8zE+EKV+Ji3PeTJbstjTM+/4+6XxclvuE3+fi0o=,tag:B3wLE2Xdlnzyyrrt0FrLew==,type:str]
+            encryption_key: ENC[AES256_GCM,data:mxx3k28WImmPXAipl9ccAQ8kmvXjyqnw/4a2D4K7f40=,iv:iV/wiNxqwDc4JOL2jnytYQBXjZ0yhiB1D88Sbs6J1hE=,tag:uLFOtFLVnjGbDPREVOarCQ==,type:str]
+            config:
+                scope: groups openid email
+                email_domains:
+                    - acceliox.ch
+                pass_user_headers: true
+telemetry:
+    # uuid is the unique identifier of the client where the agent is running.
+    # This field is required and will print an error message when that entry is missing.
+    uuid: 7b1cb9f8-568a-45fe-a1b6-a7e6ed4348a8
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age135pk6se2rwec3w94uqjcw9fqcu9d3jg4lgpp73ty30mukvykjgashlhz03
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBCOVJERHZaSkljTi84T0tH
+            NTVxUEtjTXphTDhFV2ExR21GY3pldzEwT0hvCmpaZ2tMZmRxeTZPL3pscXBvSEZr
+            bnlwUUVGaDN3NFZkTitoTTVMc0pFcjAKLS0tIGFBc01rY0dZbEFBSDZKQzNla2U3
+            eUpNcXl2b2lHM3M3YVdSUjlHVUl5VVUKZyGfUS3jUCrjtoLsKUbsWu4B38tn932o
+            0M+0tbIpMdBxjMPVaXIlFfY61WRW8ky93S+fSXfmOrBO/qv4OCkAkA==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2022-03-26T11:21:08Z"
+    mac: ENC[AES256_GCM,data:128e+cisWtA0pLYwkRJ7d7fiT4VITem+ksrGx/RtDRfksM5fhQlNVQda2gKTiKZb2YZ88vKynGX89lEurHoq9UV2uIiBbirWyX5Hg8/0abPlkFadj/xjOABRN584twP4Jfhnq1dKkG9Onf7u32PtKLDJZsl8sTHBvwdehMLObWs=,iv:DfbGK3foNFXisVmRg8jeFCYQZChcxtcdVKM8kcEd5T8=,tag:ZByTwYkmEJtRBhgPZVUbuQ==,type:str]
+    pgp: []
+    encrypted_regex: (hash|secret|password|encryption_key|accessKey)
+    version: 3.7.1

@@ -1,0 +1,21 @@
+apiVersion: kubermatic.k8s.io/v1
+kind: Seed
+metadata:
+  name: kubermatic
+  namespace: kubermatic
+spec:
+  country: Switzerland
+  datacenters:
+    SwissIndustrialCloud:
+      country: "Switzerland"
+      location: "Zürich"
+      spec:
+        gcp:
+          region: "europe-west6-c"
+          zone_suffixes:
+            - a
+            - b
+            - c
+  kubeconfig:
+    name: kubeconfig-cluster
+    namespace: kubermatic
